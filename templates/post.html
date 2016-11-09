@@ -1,0 +1,14 @@
+<div class="post">
+    <div class="post-heading">
+        <div class="post-title">
+            {{post.subject}}
+        </div>
+        <div class="post-date">
+            {{post.created.strftime("%b %d, %Y")}}
+        </div>
+    </div>
+    <!--the pipe notation allows the HTML to not be escaped-->
+    <div class="post-content">
+        {{post._render_text | safe}}
+    </div>
+</div>
