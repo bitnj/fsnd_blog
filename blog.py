@@ -1,6 +1,7 @@
 # system libraries
 import os
 import re
+import time
 
 # libraries for google app engine
 import webapp2
@@ -80,8 +81,8 @@ class BlogHandler(webapp2.RequestHandler):
         self.response.out.write(*a, **kw)
 
     def render_str(self, template, **params):
-        t = JINJA_ENV.get_template(template)
-        return t.render(params)
+        params['user'] = self.user # gets user into Base.html for logout text
+        return render_str(template, **params)
 
     def render(self, template, **kw):
         self.write(self.render_str(template, **kw))
@@ -117,15 +118,22 @@ def blog_key(name = 'default'):
 
 class Post(db.Model):
     """defines Post Kind in GAE datastore"""
+    user = db.ReferenceProperty(User, collection_name='posts')
+    author = db.StringProperty(required = True)
     subject = db.StringProperty(required = True)
     content = db.TextProperty(required = True)
     created = db.DateTimeProperty(auto_now_add = True)
     last_modified = db.DateTimeProperty(auto_now = True)
+    likes = db.IntegerProperty(default=0)
 
     def render(self):
         """replaces plain text line breaks with proper HTML breaks"""
         self._render_text = self.content.replace('\n', '<br>')
         return render_str("post.html", post = self)
+
+class Liker(db.Model):
+    post = db.ReferenceProperty(Post, collection_name='likers')
+    likerKey = db.StringProperty()
 
 class BlogFrontHandler(BlogHandler):
     def get(self):
@@ -147,7 +155,7 @@ class NewPostHandler(BlogHandler):
         # if both the subject and content fields have data forward to a
         # permalink
         if subject and content:
-            p = Post(subject=subject, content=content)
+            p = Post(user=self.user, author=self.user.name, subject=subject, content=content)
             p.put()
             self.redirect('/blog/%s' % str(p.key().id()))
         else:
@@ -163,7 +171,58 @@ class PermaLinkHandler(BlogHandler):
             self.error(404)
             return
         
-        self.render("post.html", post=post)
+        self.render("permalink.html", post=post)
+
+class EditPostHandler(BlogHandler, db.Model):
+    def get(self, postKey):
+        q = Post.all()       
+        post = q.filter('__key__', db.Key(postKey)).get()
+        
+        self.render("edit-post.html", subject=post.subject, content=post.content)
+    
+    def post(self, postKey):
+        subject = self.request.get("subject")
+        content = self.request.get("content")
+
+        # if both the subject and content fields have data forward to a
+        # permalink
+        if subject and content:
+            q = Post.all()       
+            post = q.filter('__key__', db.Key(postKey)).get()
+            
+            post.subject = subject
+            post.content = content
+            post.put()
+            self.redirect('/blog/%s' % str(post.key().id()))
+        else:
+            error = "both subject and content are required"
+            self.render("post-form.html", subject=subject, content=content,
+                    error=error)
+            
+class DeletePostHandler(BlogHandler, db.Model):
+    def get(self, postKey):
+        db.delete(db.Key(postKey))
+        time.sleep(1)
+        self.redirect('/blog')
+
+class LikePostHandler(BlogHandler, db.Model):
+    def get(self, postKey):
+        q = Post.all()       
+        post = q.filter('__key__', db.Key(postKey)).get()
+       
+        # make sure this user hasn't already liked this post
+        already_liked = False
+        for liker in post.likers:
+            if liker.likerKey == str(self.user.key()):
+                already_liked = True
+
+        if not already_liked:
+            Liker(post=post, likerKey=str(self.user.key())).put()
+            post.likes += 1
+            post.put()
+            time.sleep(1)
+
+        self.redirect('/blog')
 
 # set up regex for sign-up form fields
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
@@ -247,13 +306,10 @@ class LogoutHandler(BlogHandler):
 
 class WelcomeHandler(BlogHandler):
     def get(self):
-        #username_cookie_str = self.request.cookies.get('user_id')
-        username = self.user.name #check_secure_val(username_cookie_str)
-        if username:
-            if valid_username(username):
-                self.render("welcome.html", username = username)
-            else:
-                self.redirect('/signup')
+        if self.user:
+            self.render("welcome.html", username = self.user.name)
+        else:
+            self.redirect('/signup')
 
 app = webapp2.WSGIApplication([('/', MainPageHandler),
     ('/signup', SignupHandler),
@@ -262,5 +318,8 @@ app = webapp2.WSGIApplication([('/', MainPageHandler),
     ('/blog/newpost', NewPostHandler), 
     ('/blog/(\d+)', PermaLinkHandler),
     ('/login', LoginHandler),
-    ('/logout', LogoutHandler)], 
+    ('/logout', LogoutHandler),
+    ('/editpost/([a-zA-Z0-9_-]+)', EditPostHandler),
+    ('/deletepost/([a-zA-Z0-9_-]+)', DeletePostHandler),
+    ('/likepost/([a-zA-Z0-9_-]+)', LikePostHandler)], 
     debug=True)

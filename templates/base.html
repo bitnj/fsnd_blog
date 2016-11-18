@@ -8,6 +8,16 @@
     <body>
         <a href="/blog" class="main-title">FSND Blog Project</a>
         
+        <div class="login-area">
+            {% if user %}
+                user: {{user.name}} (<a class="login-link" href="/logout">logout</a>)
+                <a class="home-link" href="/blog">home</a>
+                <a class="newpost-link" href="/blog/newpost">new post</a>
+            {% else %}
+                <a class="login-link" href="/login">login</a>
+                <a class="login-link" href="/signup">signup</a>
+            {% endif %}
+        </div>
         <div id="content">
             {% block content %}
             {% endblock %}

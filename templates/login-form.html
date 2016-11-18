@@ -1,19 +1,23 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <form method="post">
-    <h2>Login</h2>
     <br>
-    <label>
-        Username
-        <input type="text" name="username" value="{{username}}">
-    </label>
-    <br>
-    <label>
-        Password
-        <input type="password" name="password" value="{{password}}">
-    </label>
-    <span class="error">{{error}}</span>
-    <input type="submit">
+    <fieldset>
+        <legend>Login</legend>
+    
+        <p>
+            <label class="field" for="username">Username:</label>
+            <input type="text" name="username" id="username" value="{{username}}">
+        </p>
+        <p>
+            <label class="field" for="password">Password:</label>
+            <input type="password" name="password" id="password" value="{{password}}">
+        </p>
+        <span class="error">{{error}}</span>
+        <input type="submit">
+    </fieldset>
 </form>
+
 {% endblock %}

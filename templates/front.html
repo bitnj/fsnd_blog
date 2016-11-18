@@ -3,8 +3,17 @@
 {% block content %}
     
     {% for post in posts %}
+        <br>
+        {% if post.author==user.name %}
+            <a class="edit-link" href="/editpost/{{post.key()}}">edit</a>
+            <a class="delete-link" href="/deletepost/{{post.key()}}">delete</a>
+        {% else %}
+            <a class="like-link" href="/likepost/{{post.key()}}">like-post:</a>
+            {{post.likes}}
+        {% endif %}
+        
         {{ post.render() | safe }}
-        <br><br>
+        <br>
     {% endfor %}
 
 {% endblock %}

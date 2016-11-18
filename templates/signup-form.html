@@ -2,33 +2,34 @@
 
 
 {% block content %}
+
 <form method="post">
-    <h2>Sign Up</h2>
     <br>
-    <label>
-        Username
-        <input type="text" name="username" value="{{username}}">
-        <span class="error">{{error_username}}</span>
-    </label>
-    <br>
-    <label>
-        Password
-        <input type="password" name="password" value="{{password}}">
-        <span class="error">{{error_password}}</span>
-    </label>
-    <br>
-    <label>
-        Verify Password
-        <input type="password" name="verify" value="{{verify}}">
-        <span class="error">{{error_verify}}</span>
-    </label>
-    <br>
-    <label>
-        Email
-        <input type="text" name="email" value="{{email}}">
-        <span class="error">{{error_email}}</span>
-    </label>
-    <br>
-    <input type="submit">
+    <fieldset>
+        <legend>Sign Up</legend>
+
+        <p>
+            <label class="field" for="username">Username:</label>
+            <input type="text" name="username" id="username" value="{{username}}">
+            <span class="error">{{error_username}}</span>
+        </p>
+        <p>
+        <label class="field" for="password">Password:</label>
+            <input type="password" name="password" id="password" value="{{password}}">
+            <span class="error">{{error_password}}</span>
+        </p>
+        <p>
+        <label class="field" for="verify">Verify Password:</label>
+            <input type="password" name="verify" id="verify" value="{{verify}}">
+            <span class="error">{{error_verify}}</span>
+        </p>
+        <p>
+        <label class="field" for="email">Email:</label>
+            <input type="text" name="email" id="email" value="{{email}}">
+            <span class="error">{{error_email}}</span>
+        </p>
+        <input type="submit">
+    </fieldset>
 </form>
+
 {% endblock %}
