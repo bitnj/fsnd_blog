@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <form method="post">    
+        <h2>Add Comment</h2>
+        <p>
+            <a class="cancel-link" href="/blog">cancel</a>
+        </p>
+        <p>
+            <label class="comment_field" for"comment">Comment:</label>
+            <br>
+        <p>
+            <textarea name="comment" id="comment"></textarea>
+        </p>
+        <input type="submit">
+    </form>
+{% endblock %}

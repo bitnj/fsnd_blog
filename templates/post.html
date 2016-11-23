@@ -3,6 +3,9 @@
         <div class="post-title">
             {{post.subject}}
         </div>
+        <div class="post-author">
+            {{post.author}}
+        </div>
         <div class="post-date">
             {{post.created.strftime("%b %d, %Y")}}
         </div>
@@ -10,5 +13,12 @@
     <!--the pipe notation allows the HTML to not be escaped-->
     <div class="post-content">
         {{post._render_text | safe}}
+    </div>
+    <div class="post-comments">
+        <h3>Comments</h3>
+        {% for comment in post.comments %}
+            {{comment.content}}
+            <br>
+        {% endfor %}
     </div>
 </div>

@@ -135,6 +135,11 @@ class Liker(db.Model):
     post = db.ReferenceProperty(Post, collection_name='likers')
     likerKey = db.StringProperty()
 
+class Comment(db.Model):
+    post = db.ReferenceProperty(Post, collection_name='comments')
+    commenterKey = db.StringProperty()
+    content = db.TextProperty()
+
 class BlogFrontHandler(BlogHandler):
     def get(self):
         """get the top 10 most recent blog posts"""
@@ -175,11 +180,13 @@ class PermaLinkHandler(BlogHandler):
 
 class EditPostHandler(BlogHandler, db.Model):
     def get(self, postKey):
-        q = Post.all()       
-        post = q.filter('__key__', db.Key(postKey)).get()
-        
-        self.render("edit-post.html", subject=post.subject, content=post.content)
-    
+        if self.user:
+            q = Post.all()       
+            post = q.filter('__key__', db.Key(postKey)).get()
+            self.render("edit-post.html", subject=post.subject, content=post.content)
+        else:
+            self.redirect("/login")
+
     def post(self, postKey):
         subject = self.request.get("subject")
         content = self.request.get("content")
@@ -216,11 +223,30 @@ class LikePostHandler(BlogHandler, db.Model):
             if liker.likerKey == str(self.user.key()):
                 already_liked = True
 
-        if not already_liked:
+        if not already_liked and post.user.key() != self.user.key():
             Liker(post=post, likerKey=str(self.user.key())).put()
             post.likes += 1
             post.put()
             time.sleep(1)
+
+        self.redirect('/blog')
+
+class CommentHandler(BlogHandler, db.Model):
+    def get(self, postKey):
+        if self.user:
+            self.render("comment-form.html")
+        else:
+            self.redirect("/login")
+
+    def post(self, postKey):    
+        comment = self.request.get("comment")
+
+        q = Post.all()       
+        post = q.filter('__key__', db.Key(postKey)).get()
+       
+        Comment(post=post, commenterKey=str(self.user.key()), content=comment).put()
+        post.put()
+        time.sleep(1)
 
         self.redirect('/blog')
 
@@ -321,5 +347,6 @@ app = webapp2.WSGIApplication([('/', MainPageHandler),
     ('/logout', LogoutHandler),
     ('/editpost/([a-zA-Z0-9_-]+)', EditPostHandler),
     ('/deletepost/([a-zA-Z0-9_-]+)', DeletePostHandler),
-    ('/likepost/([a-zA-Z0-9_-]+)', LikePostHandler)], 
+    ('/likepost/([a-zA-Z0-9_-]+)', LikePostHandler),
+    ('/comment/([a-zA-Z0-9_-]+)', CommentHandler)], 
     debug=True)
