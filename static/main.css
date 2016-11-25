@@ -9,13 +9,23 @@ body {
     color: #333;
 }
 
+.main-title {
+    display: block;
+    color: #222;
+    font-size: 40px;
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: 30px;
+    text-decoration: none;
+}
+
 h2 {
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 20px;
 }
 
-/* signup form css */
+/* signup and login form css */
 legend {
     font-size: 20px;
     font-weight: bold;
@@ -37,7 +47,7 @@ a.home-link {
     padding-left: 5px;
 }
 
-/* newpost css */
+/* post-form and edit-post css */
 label.newpost_field {
     font-size: 15px;
     font-weight: bold;
@@ -52,14 +62,6 @@ input[type=submit] {
     color: red;
 }
 
-
-/*input[type=text] {
-    width: 500px;
-    font-size: 20px;
-    padding: 2px;
-    font-family: monospace;
-}*/
-
 textarea {
   width: 500px;
   height: 400px;
@@ -67,40 +69,84 @@ textarea {
   font-family: monospace;
 }
 
-
-.main-title {
-    display: block;
-    color: #222;
-    font-size: 40px;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 30px;
-    text-decoration: none;
-}
-
-.post + .post {
-    margin-top: 15px;
-}
-
 .post-heading {
     position: relative;
+    height: auto;
     border-bottom: 3px solid #666;
 }
 
 .post-title {
     font-size: 24px;
     font-weight: bold;
+    width: 50%;
+    display: inline-block;
+}
+
+.post-author {
+    width: 15%;
+    display: inline-block;
 }
 
 .post-date {
-    position: absolute;
-    right: 0px;
-    bottom: 0px;
     color: #999;
+    width: 15%;
+    display: inline-block;
+}
 
+.post-likes {
+    width: 10%;
+    display: inline-block;
+}
+
+.post + .post {
+    margin-top: 15px;
 }
 
 .post-content {
     margin-top: 5px;
+}
+
+.comment-section-label {
+    margin-bottom: 1px;
+    display: inline-block;
+    width: 25%;
+}
+
+.add-comment {
+    display: inline-block;
+    width: 25%;
+}
+
+.comment-header {
+    position: relative;
+    height: auto;
+    border-bottom: 1px solid #666;
+    text-align: justify;
+    margin: 15px;
+}
+
+.comment-author {
+    font-weight: bold;
+    width: 25%;
+    display: inline-block;
+}
+
+.comment-date {
+    color: #999;
+    width: 25%;
+    display: inline-block;
+}
+
+.comment-content {
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+.comment {
+    margin: 20px;
+}
+
+.comment-content + .comment-content {
+    margin-top: 15px;
 }
 

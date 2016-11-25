@@ -4,21 +4,37 @@
             {{post.subject}}
         </div>
         <div class="post-author">
-            {{post.author}}
+            Author:&nbsp {{post.author}}
         </div>
         <div class="post-date">
             {{post.created.strftime("%b %d, %Y")}}
+        </div>
+        <div class="post-likes">
+            <a class="like-link" href="/likepost/{{post.key()}}">likes:</a>
+            {{post.likes}}
         </div>
     </div>
     <!--the pipe notation allows the HTML to not be escaped-->
     <div class="post-content">
         {{post._render_text | safe}}
     </div>
-    <div class="post-comments">
-        <h3>Comments</h3>
+    <div class="comment-header">
+        <div class="comment-section-label">Comments</div>
+        <div class="add-comment">
+            <a class="comment-link" href="/comment/{{post.key()}}">comment</a>
+        </div>
+    </div>
+    <div class="comment-content">
         {% for comment in post.comments %}
-            {{comment.content}}
-            <br>
+            <div class="comment-author">    
+                {{comment.author}}
+            </div>
+            <div class="comment-date">    
+                {{comment.last_modified.strftime("%c")}}
+            </div>
+            <div class="comment">
+                {{comment.content}}
+            </div>
         {% endfor %}
     </div>
 </div>

@@ -138,7 +138,10 @@ class Liker(db.Model):
 class Comment(db.Model):
     post = db.ReferenceProperty(Post, collection_name='comments')
     commenterKey = db.StringProperty()
+    author = db.StringProperty()
     content = db.TextProperty()
+    created = db.DateTimeProperty(auto_now_add = True)
+    last_modified = db.DateTimeProperty(auto_now = True)
 
 class BlogFrontHandler(BlogHandler):
     def get(self):
@@ -244,7 +247,7 @@ class CommentHandler(BlogHandler, db.Model):
         q = Post.all()       
         post = q.filter('__key__', db.Key(postKey)).get()
        
-        Comment(post=post, commenterKey=str(self.user.key()), content=comment).put()
+        Comment(post=post, author=self.user.name, commenterKey=str(self.user.key()), content=comment).put()
         post.put()
         time.sleep(1)
 
