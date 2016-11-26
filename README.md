@@ -13,54 +13,50 @@ A logged in user can create, edit, comment on, and like posts.  If a user is not
 logged in the app will redirect to the sign-up page.
 
 ## Running locally
-    1. Download this repository leaving the file hierarchy in place
-    2. Download and install the Google App Engine SDK for Python and follow the
-       instructions
-      * [https://cloud.google.com/appengine/docs/python/download]  
-    3. Using the command line navigate to the directory one level above the
-        project directory
-    4. To start the local webserver - from the command line type **dev_appserver.py blog**
-    5. To view the webapp - in a browser navigate to localhost:8080/blog
-    6. The datastore can be view locally at localhost:8000/datastore
+1. Download this repository leaving the file hierarchy in place 
+2. Download and install the Google App Engine SDK for Python and follow the
+   instructions [https://cloud.google.com/appengine/docs/python/download]  
+3. Using the command line navigate to the directory one level above the
+    project directory
+4. To start the local webserver - from the command line type **dev_appserver.py blog**
+5. To view the webapp - in a browser navigate to localhost:8080/blog
+6. The datastore can be view locally at localhost:8000/datastore
 
 ## Navigation
-    From all pages the Main page title can be clicked to navigate back to the
-    main blog page.  All other navigation is accomplished through links
+From all pages the Main page title can be clicked to navigate back to the
+main blog page.  All other navigation is accomplished through links
 
 ## GAE Entities:
-    1. Post
-      * Contains main post content - author, content, created, subject, likes  
-    2. User
-      * Contains information obtained from signup form plus password hash  
-    3. Liker
-      * used to establish a one to many relationship between a Post and Users
-        who have liked the post  
-    4. Comment
-      * used to establish a one to many relationship between a Post and Comments
-        associated with that post.  
+1. Post  
+  * Contains main post content - author, content, created, subject, likes  
+2. User
+  * Contains information obtained from signup form plus password hash  
+3. Liker
+  * used to establish a one to many relationship between a Post and Users
+    who have liked the post  
+4. Comment
+  * used to establish a one to many relationship between a Post and Comments
+    associated with that post.  
 
 ## Templates:
-    1. Base.html
-      * home link - redirects to main Blog page  
-      * newpost link - redirects to newpost form  
-    2. signup-form.html
-      * for creating a new user account  
-    3. login-form.html
-      * for returning users to log in  
-    4. front.html
-      * renders posts and comments  
-    5. post.html
-      * fills in the post when post.render is called from front.html  
-    6. post-form.html
-      * form for creating a new post  
-    7. permalink.html
-      * after a new post is created this page is displayed  
-    8. edit-post.html
-    9. comment-form.html
-      * create a new comment  
-    10. comment.html
-      * for rendering within front.html  
-    11. edit-comment.html
-
-
-        
+1. Base.html
+  * home link - redirects to main Blog page  
+  * newpost link - redirects to newpost form  
+2. signup-form.html
+  * for creating a new user account  
+3. login-form.html
+  * for returning users to log in  
+4. front.html
+  * renders posts and comments  
+5. post.html
+  * fills in the post when post.render is called from front.html  
+6. post-form.html
+  * form for creating a new post  
+7. permalink.html
+  * after a new post is created this page is displayed  
+8. edit-post.html
+9. comment-form.html
+  * create a new comment  
+10. comment.html
+  * for rendering within front.html  
+11. edit-comment.html
