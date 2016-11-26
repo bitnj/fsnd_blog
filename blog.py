@@ -157,6 +157,7 @@ class NewPostHandler(BlogHandler):
             self.redirect("/login")
 
     def post(self):
+        # make sure we have a logged in user by checking self.user
         if self.user:
             subject = self.request.get("subject")
             content = self.request.get("content")
@@ -203,11 +204,15 @@ class EditPostHandler(BlogHandler, db.Model):
             if subject and content:
                 q = Post.all()       
                 post = q.filter('__key__', db.Key(postKey)).get()
-                
-                post.subject = subject
-                post.content = content
-                post.put()
-                self.redirect('/blog/%s' % str(post.key().id()))
+               
+                # only the author of a post can edit it
+                if self.user.key() == post.user.key():
+                    post.subject = subject
+                    post.content = content
+                    post.put()
+                    self.redirect('/blog/%s' % str(post.key().id()))
+                else:
+                    self.redirect('/blog')
             else:
                 error = "both subject and content are required"
                 self.render("post-form.html", subject=subject, content=content,
@@ -217,9 +222,13 @@ class EditPostHandler(BlogHandler, db.Model):
             
 class DeletePostHandler(BlogHandler, db.Model):
     def get(self, postKey):
-        db.delete(db.Key(postKey))
-        time.sleep(1)
-        self.redirect('/blog')
+        if self.user:
+            if self.user.key() == db.Key(postKey):
+                db.delete(db.Key(postKey))
+                time.sleep(1)
+            self.redirect('/blog')
+        else:
+            self.redirect('/login')
 
 class LikePostHandler(BlogHandler, db.Model):
     def get(self, postKey):
@@ -284,9 +293,12 @@ class EditCommentHandler(BlogHandler, db.Model):
             content = self.request.get("comment")
             q = Comment.all()       
             comment = q.filter('__key__', db.Key(commentKey)).get()
-            comment.content = content
-            comment.put()
-            time.sleep(1)
+            
+            # user can only edit comments they created
+            if self.user.name == comment.author:
+                comment.content = content
+                comment.put()
+                time.sleep(1)
             self.redirect('/blog')
         else:
             self.redirect("/login")
