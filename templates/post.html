@@ -32,6 +32,12 @@
             <div class="comment-date">    
                 {{comment.last_modified.strftime("%c")}}
             </div>
+            <div class="comment-nav">
+                <a class="edit-comment"
+                   href="/editcomment/{{comment.key()}}">edit</a>
+                <a class="delete-comment"
+                   href="/deletecomment/{{comment.key()}}">delete</a>
+            </div>
             <div class="comment">
                 {{comment.content}}
             </div>

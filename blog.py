@@ -111,7 +111,7 @@ class BlogHandler(webapp2.RequestHandler):
 
 class MainPageHandler(BlogHandler):
     def get(self):
-        self.write('Blog Welcome Page')
+        self.redirect('/signup')
 
 def blog_key(name = 'default'):
     return db.Key.from_path('blogs', name)
@@ -217,22 +217,25 @@ class DeletePostHandler(BlogHandler, db.Model):
 
 class LikePostHandler(BlogHandler, db.Model):
     def get(self, postKey):
-        q = Post.all()       
-        post = q.filter('__key__', db.Key(postKey)).get()
-       
-        # make sure this user hasn't already liked this post
-        already_liked = False
-        for liker in post.likers:
-            if liker.likerKey == str(self.user.key()):
-                already_liked = True
+        if self.user:
+            q = Post.all()       
+            post = q.filter('__key__', db.Key(postKey)).get()
+           
+            # make sure this user hasn't already liked this post
+            already_liked = False
+            for liker in post.likers:
+                if liker.likerKey == str(self.user.key()):
+                    already_liked = True
 
-        if not already_liked and post.user.key() != self.user.key():
-            Liker(post=post, likerKey=str(self.user.key())).put()
-            post.likes += 1
-            post.put()
-            time.sleep(1)
+            if not already_liked and post.user.key() != self.user.key():
+                Liker(post=post, likerKey=str(self.user.key())).put()
+                post.likes += 1
+                post.put()
+                time.sleep(1)
 
-        self.redirect('/blog')
+            self.redirect('/blog')
+        else:
+            self.redirect('/login')
 
 class CommentHandler(BlogHandler, db.Model):
     def get(self, postKey):
@@ -252,6 +255,44 @@ class CommentHandler(BlogHandler, db.Model):
         time.sleep(1)
 
         self.redirect('/blog')
+
+class EditCommentHandler(BlogHandler, db.Model):
+    def get(self, commentKey):
+        if self.user:
+            q = Comment.all()       
+            comment = q.filter('__key__', db.Key(commentKey)).get()
+            
+            # users can only edit comments they created
+            if self.user.name == comment.author:
+                self.render("edit-comment.html", content=comment.content)
+            else:
+                self.redirect("/blog")
+        else:
+            self.redirect("/login")
+
+    def post(self, commentKey):
+        content = self.request.get("comment")
+        q = Comment.all()       
+        comment = q.filter('__key__', db.Key(commentKey)).get()
+        comment.content = content
+        comment.put()
+        time.sleep(1)
+        self.redirect('/blog')
+
+class DeleteCommentHandler(BlogHandler, db.Model):
+    def get(self, commentKey):
+        if self.user:
+            q = Comment.all()
+            comment = q.filter('__key__', db.Key(commentKey)).get()
+
+            # users can only delete comments they created
+            if self.user.name == comment.author:
+                db.delete(db.Key(commentKey))
+                time.sleep(1)
+                
+            self.redirect('/blog')
+        else:
+            self.redirect('/login')
 
 # set up regex for sign-up form fields
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
@@ -331,7 +372,7 @@ class LoginHandler(BlogHandler):
 class LogoutHandler(BlogHandler):
     def get(self):
         self.logout()
-        self.redirect('/signup')
+        self.redirect('/login')
 
 class WelcomeHandler(BlogHandler):
     def get(self):
@@ -351,5 +392,7 @@ app = webapp2.WSGIApplication([('/', MainPageHandler),
     ('/editpost/([a-zA-Z0-9_-]+)', EditPostHandler),
     ('/deletepost/([a-zA-Z0-9_-]+)', DeletePostHandler),
     ('/likepost/([a-zA-Z0-9_-]+)', LikePostHandler),
-    ('/comment/([a-zA-Z0-9_-]+)', CommentHandler)], 
+    ('/comment/([a-zA-Z0-9_-]+)', CommentHandler),
+    ('/editcomment/([a-zA-Z0-9_-]+)', EditCommentHandler),
+    ('/deletecomment/([a-zA-Z0-9_-]+)', DeleteCommentHandler)], 
     debug=True)

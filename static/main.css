@@ -137,6 +137,11 @@ textarea {
     display: inline-block;
 }
 
+.comment-nav {
+    width: 25%;
+    display: inline-block;
+}
+
 .comment-content {
     margin-left: 15px;
     margin-right: 15px;
