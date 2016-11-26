@@ -10,6 +10,7 @@ LOGIN_REDIRECT = '/login'
 WELCOME_REDIRECT = '/welcome'
 TEMPLATE = 'login-form.html'
 
+
 class LoginHandler(bloghandler.BlogHandler):
 
     def get(self):

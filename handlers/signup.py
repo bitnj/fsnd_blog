@@ -8,6 +8,7 @@ from models import user
 
 # helper functions to the signup handler to check for valid user input
 
+
 def valid_username(username):
     USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
     return USER_RE.match(username)
