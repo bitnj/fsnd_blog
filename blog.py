@@ -157,20 +157,23 @@ class NewPostHandler(BlogHandler):
             self.redirect("/login")
 
     def post(self):
-        subject = self.request.get("subject")
-        content = self.request.get("content")
+        if self.user:
+            subject = self.request.get("subject")
+            content = self.request.get("content")
 
-        # if both the subject and content fields have data forward to a
-        # permalink
-        if subject and content:
-            p = Post(user=self.user, author=self.user.name, subject=subject, content=content)
-            p.put()
-            self.redirect('/blog/%s' % str(p.key().id()))
+            # if both the subject and content fields have data forward to a
+            # permalink
+            if subject and content:
+                p = Post(user=self.user, author=self.user.name, subject=subject, content=content)
+                p.put()
+                self.redirect('/blog/%s' % str(p.key().id()))
+            else:
+                error = "both subject and content are required"
+                self.render("post-form.html", subject=subject, content=content,
+                        error=error)
         else:
-            error = "both subject and content are required"
-            self.render("post-form.html", subject=subject, content=content,
-                    error=error)
-            
+            self.redirect("/login")
+
 class PermaLinkHandler(BlogHandler):
     def get(self, postID):
         post = Post.get_by_id(int(postID))
@@ -191,23 +194,26 @@ class EditPostHandler(BlogHandler, db.Model):
             self.redirect("/login")
 
     def post(self, postKey):
-        subject = self.request.get("subject")
-        content = self.request.get("content")
+        if self.user:
+            subject = self.request.get("subject")
+            content = self.request.get("content")
 
-        # if both the subject and content fields have data forward to a
-        # permalink
-        if subject and content:
-            q = Post.all()       
-            post = q.filter('__key__', db.Key(postKey)).get()
-            
-            post.subject = subject
-            post.content = content
-            post.put()
-            self.redirect('/blog/%s' % str(post.key().id()))
+            # if both the subject and content fields have data forward to a
+            # permalink
+            if subject and content:
+                q = Post.all()       
+                post = q.filter('__key__', db.Key(postKey)).get()
+                
+                post.subject = subject
+                post.content = content
+                post.put()
+                self.redirect('/blog/%s' % str(post.key().id()))
+            else:
+                error = "both subject and content are required"
+                self.render("post-form.html", subject=subject, content=content,
+                        error=error)
         else:
-            error = "both subject and content are required"
-            self.render("post-form.html", subject=subject, content=content,
-                    error=error)
+            self.redirect("/login")
             
 class DeletePostHandler(BlogHandler, db.Model):
     def get(self, postKey):
@@ -244,17 +250,20 @@ class CommentHandler(BlogHandler, db.Model):
         else:
             self.redirect("/login")
 
-    def post(self, postKey):    
-        comment = self.request.get("comment")
+    def post(self, postKey):
+        if self.user:
+            comment = self.request.get("comment")
 
-        q = Post.all()       
-        post = q.filter('__key__', db.Key(postKey)).get()
-       
-        Comment(post=post, author=self.user.name, commenterKey=str(self.user.key()), content=comment).put()
-        post.put()
-        time.sleep(1)
+            q = Post.all()       
+            post = q.filter('__key__', db.Key(postKey)).get()
+           
+            Comment(post=post, author=self.user.name, commenterKey=str(self.user.key()), content=comment).put()
+            post.put()
+            time.sleep(1)
 
-        self.redirect('/blog')
+            self.redirect('/blog')
+        else:
+            self.redirect("/login")
 
 class EditCommentHandler(BlogHandler, db.Model):
     def get(self, commentKey):
@@ -271,13 +280,16 @@ class EditCommentHandler(BlogHandler, db.Model):
             self.redirect("/login")
 
     def post(self, commentKey):
-        content = self.request.get("comment")
-        q = Comment.all()       
-        comment = q.filter('__key__', db.Key(commentKey)).get()
-        comment.content = content
-        comment.put()
-        time.sleep(1)
-        self.redirect('/blog')
+        if self.user:
+            content = self.request.get("comment")
+            q = Comment.all()       
+            comment = q.filter('__key__', db.Key(commentKey)).get()
+            comment.content = content
+            comment.put()
+            time.sleep(1)
+            self.redirect('/blog')
+        else:
+            self.redirect("/login")
 
 class DeleteCommentHandler(BlogHandler, db.Model):
     def get(self, commentKey):
@@ -294,18 +306,16 @@ class DeleteCommentHandler(BlogHandler, db.Model):
         else:
             self.redirect('/login')
 
-# set up regex for sign-up form fields
-USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
-PWORD_RE = re.compile(r"^.{3,20}$")
-EMAIL_RE = re.compile(r"^[\S]+@[\S]+.[\S]+$")
-
 def valid_username(username):
+    USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
     return USER_RE.match(username)
 
 def valid_password(password):
+    PWORD_RE = re.compile(r"^.{3,20}$")
     return PWORD_RE.match(password)
 
 def valid_email(email):
+    EMAIL_RE = re.compile(r"^[\S]+@[\S]+.[\S]+$")
     return not email or EMAIL_RE.match(email)
 
 class SignupHandler(BlogHandler):
