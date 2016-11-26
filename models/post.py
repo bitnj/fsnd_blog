@@ -16,7 +16,10 @@ from models import user
 
 
 # call os.path.dirname twice because templates is up one directory
-template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'templates')
+template_dir = os.path.join(
+    os.path.dirname(
+        os.path.dirname(__file__)),
+    'templates')
 JINJA_ENV = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir),
                                autoescape=True)
 

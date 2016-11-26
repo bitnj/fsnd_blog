@@ -8,6 +8,7 @@ from google.appengine.ext import db
 # User defined packages
 from models import post
 
+
 class Comment(db.Model):
     post = db.ReferenceProperty(post.Post, collection_name='comments')
     commenterKey = db.StringProperty()
@@ -15,4 +16,3 @@ class Comment(db.Model):
     content = db.TextProperty()
     created = db.DateTimeProperty(auto_now_add=True)
     last_modified = db.DateTimeProperty(auto_now=True)
-
